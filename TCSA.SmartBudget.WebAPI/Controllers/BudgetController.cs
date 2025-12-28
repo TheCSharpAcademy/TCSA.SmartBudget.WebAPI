@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TCSA.SmartBudget.WebAPI.Models;
 using TCSA.SmartBudget.WebAPI.Models.DTOs;
@@ -12,6 +13,7 @@ public class BudgetController(
     ILogger<BudgetController> _logger
     ) : ControllerBase
 {
+    [Authorize]
     [HttpPost("add-category")]
     public async Task<IActionResult> AddCategory([FromQuery] AddCategoryDto category)
     {
