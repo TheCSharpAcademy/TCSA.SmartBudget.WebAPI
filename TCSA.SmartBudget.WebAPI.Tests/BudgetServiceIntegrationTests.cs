@@ -18,10 +18,8 @@ public class Tests
         var baseConnectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
         ?? "Server=localhost,1433;User Id=sa;Password=Str0ngP@ssw0rd!123;TrustServerCertificate=True;Encrypt=False;";
 
-        _connectionString = $"Data Source=.;Initial Catalog={dbName};Integrated Security=True;TrustServerCertificate=True";
-
         _options = new DbContextOptionsBuilder<BudgetContext>()
-            .UseSqlServer(_connectionString)
+            .UseSqlServer(baseConnectionString)
             .Options;
 
         var connectionStringBuilder = new SqlConnectionStringBuilder(baseConnectionString)
