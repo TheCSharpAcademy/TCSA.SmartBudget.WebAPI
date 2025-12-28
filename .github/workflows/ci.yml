@@ -8,6 +8,19 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: "Y"
+          MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_SA_PASSWORD }}
+        ports:
+          - 1433:1433
+
+    env:
+      ConnectionStrings__DefaultConnection: Server=localhost,1433;Database=SmartBudget_Test;User Id=sa;Password=${{ secrets.MSSQL_SA_PASSWORD }};TrustServerCertificate=True;Encrypt=False;
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
