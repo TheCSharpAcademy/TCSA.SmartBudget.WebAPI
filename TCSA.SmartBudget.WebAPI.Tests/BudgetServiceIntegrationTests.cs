@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using System.Buffers.Text;
 using TCSA.SmartBudget.WebAPI.Models;
 using TCSA.SmartBudget.WebAPI.Services;
 
@@ -13,10 +15,19 @@ public class Tests
     public async Task OneTimeSetUp()
     {
         var dbName = $"TestDb_{Guid.NewGuid()}";
+        var baseConnectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+        ?? "Server=localhost,1433;User Id=sa;Password=Str0ngP@ssw0rd!123;TrustServerCertificate=True;Encrypt=False;";
+
         _connectionString = $"Data Source=.;Initial Catalog={dbName};Integrated Security=True;TrustServerCertificate=True";
+
         _options = new DbContextOptionsBuilder<BudgetContext>()
             .UseSqlServer(_connectionString)
             .Options;
+
+        var connectionStringBuilder = new SqlConnectionStringBuilder(baseConnectionString)
+        {
+            InitialCatalog = dbName
+        };
 
         await using var context = new BudgetContext(_options);
         await context.Database.EnsureCreatedAsync();
