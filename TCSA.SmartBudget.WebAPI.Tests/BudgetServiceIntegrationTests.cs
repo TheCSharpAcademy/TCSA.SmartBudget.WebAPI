@@ -1,6 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System.Buffers.Text;
 using TCSA.SmartBudget.WebAPI.Models;
 using TCSA.SmartBudget.WebAPI.Services;
 
@@ -9,7 +8,6 @@ namespace TCSA.SmartBudget.WebAPI.Tests;
 public class Tests
 {
     protected DbContextOptions<BudgetContext> _options = default!;
-    private string _connectionString = default!;
 
     [OneTimeSetUp]
     public async Task OneTimeSetUp()
@@ -51,7 +49,7 @@ public class Tests
     }
 
     [Test]
-    public async Task AddValidProduct_Persists_Product()
+    public async Task AddValidCategory_Persists_Category()
     {
         // Arrange
         await using var arrangeContext = new BudgetContext(_options);
@@ -73,5 +71,38 @@ public class Tests
 
         Assert.That(dbCategories.Count, Is.EqualTo(1));
         Assert.That(dbCategories[0].Name, Is.EqualTo("Groceries"));
+    }
+
+    [Test]
+    public async Task AddValidRecord_Persists_Record()
+    {
+        // Seed
+        await using var seedContext = new BudgetContext(_options);
+        seedContext.Categories.Add(new Category { Name = "Groceries" });
+        await seedContext.SaveChangesAsync();
+
+        // Arrange
+        await using var arrangeContext = new BudgetContext(_options);
+        var service = new BudgetService(arrangeContext);
+
+        var record = new BudgetRecord
+        {
+            Description = "Weekly groceries",
+            Amount = 150.75m,
+            Date = DateTime.UtcNow,
+            CategoryId = 1
+        };
+
+        // Act
+        var response = await service.AddBudgetRecord(record);
+
+        // Assert
+        Assert.That(response.IsSuccessful, Is.True);
+
+        await using var verifyContext = new BudgetContext(_options);
+        var dbRecords = await verifyContext.BudgetRecords.ToListAsync();
+
+        Assert.That(dbRecords.Count, Is.EqualTo(1));
+        Assert.That(dbRecords[0].Description, Is.EqualTo("Weekly groceries"));
     }
 }

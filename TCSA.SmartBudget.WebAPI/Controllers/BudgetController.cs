@@ -29,4 +29,24 @@ public class BudgetController(
 
         return Ok(result.Data);
     }
+
+    [Authorize]
+    [HttpPost("add-transaction")]
+    public async Task<IActionResult> AddTransaction([FromQuery] AddBudgetRecordDto category)
+    {
+        var mappedBudgetRecord = new BudgetRecord()
+        {
+            Description = category.Description.Trim(),
+            Amount = category.Amount,
+            Date = category.Date,
+            CategoryId = category.CategoryId
+        };
+
+        var result = await _budgetService.AddBudgetRecord(mappedBudgetRecord);
+
+        if (!result.IsSuccessful)
+            return BadRequest(result.Message);
+
+        return Ok(result.Data);
+    }
 }
